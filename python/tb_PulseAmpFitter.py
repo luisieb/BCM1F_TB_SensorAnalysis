@@ -1,0 +1,72 @@
+
+from pylab import *
+import ROOT
+from langaus.langaus import LanGausFit
+
+
+class PulseAmpFitter():
+  def __init__(self, amp, xmin=0, xmax=120, binsize=1):
+
+    self.amp = amp
+    self.xmin = xmin
+    self.xmax = xmax
+    self.binsize = binsize
+    self.mybins = np.arange(xmin,xmax+binsize,binsize)
+    self.centers = self.mybins[:-1]
+
+  def fitRange(self, fit_xmim, fit_xmax):
+    self.fit_xmim = fit_xmim
+    self.fit_xmax = fit_xmax
+
+    self.h,_ = np.histogram(self.amp, bins=self.mybins)
+    # fill root histogram
+    histogram = ROOT.TH1D("hist", "hist", self.mybins.size, self.xmin, self.xmax)
+    for x in np.arange(self.fit_xmim, self.fit_xmax, self.binsize):
+        i = int((x-self.xmin)/self.binsize)
+        histogram.Fill(self.centers[i],self.h[i])
+    try:
+      # fit root histogram
+      self.func = LanGausFit().fit(histogram)
+      self.getParem()
+    except:
+      print("fitting error")
+  
+  def getParem(self):
+    # save parameter
+    self.param = {}
+    self.param["c"]     = self.func.GetParameter(0)
+    self.param["mu"]    = self.func.GetParameter(1)
+    self.param["norm"]  = self.func.GetParameter(2)
+    self.param["sigma"] = self.func.GetParameter(3)
+    self.param["c_err"]     = self.func.GetParError(0)
+    self.param["mu_err"]    = self.func.GetParError(1)    
+    self.param["norm_err"]  = self.func.GetParError(2)
+    self.param["sigma_err"] = self.func.GetParError(3)
+
+  def plot(self):
+    plt.figure(facecolor='w',figsize=(10,4))
+    
+    # plot fitting
+    xarray = np.arange(self.xmin,self.xmax,1)
+    laugau = [self.func(x) for x in xarray]
+    plt.axvspan(self.fit_xmim, self.fit_xmax, alpha=0.1, color='C0')
+    plt.plot(xarray,laugau,lw=3,color='C0',label='LanGaus Fit')
+    
+    # plot data
+    plt.errorbar( self.centers, self.h, yerr=sqrt(self.h), xerr=self.binsize,
+                  fmt='o',color='k',label='Testbeam Data')
+
+    
+    
+    plt.grid(linestyle='--',alpha=0.3)
+    plt.legend(fontsize=14)
+    plt.xlabel("Pluse Amplitude", fontsize=12)
+    norm = self.param["norm"]/4
+    plt.ylim(0,norm)
+
+    xtxt,ytxt,ytxtspace = 0.8*self.xmax, 0.3*norm, 0.1*norm
+    plt.text(xtxt,ytxt+2*ytxtspace,r"$\mu$={:>6.3f}$\pm${:>6.3f}".format(self.param["mu"],self.param["mu_err"]))
+    plt.text(xtxt,ytxt+ytxtspace,r"$c$={:>6.3f}$\pm${:>6.3f}".format(self.param["c"],self.param["c_err"]))
+    plt.text(xtxt,ytxt,r"$\sigma$={:>6.3f}$\pm${:>6.3f}".format(self.param["sigma"],self.param["sigma_err"]))
+
+  
