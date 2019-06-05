@@ -43,12 +43,13 @@ class HVAnalyzer():
           rd = EventFeaturesReader(self.dataDir,"000"+run,backend)
           for ich,channel in enumerate(channels):  
             ch = rd.getChannel(channel)
+            sigma = ch.baseline_std.mean()
             title = "Run {}, sensor-{} {}V, {} CH{}, n={}".format(run,sns, u,backend,channel,len(ch))
             # fitting
             fitxmin = runMng[backend+"_fitxmin"][ich,irun]
             fitxmax = runMng[backend+"_fitxmax"][ich,irun]
             fitter = PulseAmpFitter(ch.pulseAmp)
-            fitter.fitRange(fitxmin,fitxmax)
+            fitter.fitRange(fitxmin,fitxmax,sigma)
 
             # plot
             if makePlots:

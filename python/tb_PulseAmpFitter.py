@@ -14,19 +14,22 @@ class PulseAmpFitter():
     self.mybins = np.arange(xmin,xmax+binsize,binsize)
     self.centers = self.mybins[:-1]
 
-  def fitRange(self, fit_xmim, fit_xmax):
+  def fitRange(self, fit_xmim, fit_xmax, gaussianSigma):
     self.fit_xmim = fit_xmim
     self.fit_xmax = fit_xmax
 
     self.h,_ = np.histogram(self.amp, bins=self.mybins)
     # fill root histogram
     histogram = ROOT.TH1D("hist", "hist", self.mybins.size, self.xmin, self.xmax)
-    for x in np.arange(self.fit_xmim, self.fit_xmax, self.binsize):
-        i = int((x-self.xmin)/self.binsize)
-        histogram.Fill(self.centers[i],self.h[i])
+    for i in range(self.centers.size):
+      histogram.Fill(self.centers[i],self.h[i])
+
+    # for x in np.arange(self.fit_xmim, self.fit_xmax, self.binsize):
+    #     i = int((x-self.xmin)/self.binsize)
+    #     histogram.Fill(self.centers[i],self.h[i])
     try:
       # fit root histogram
-      self.func = LanGausFit().fit(histogram)
+      self.func = LanGausFit().fit(histogram, fitrange=(fit_xmim,fit_xmax), startsigma=gaussianSigma)
       self.getParem()
     except:
       print("fitting error")
@@ -47,7 +50,7 @@ class PulseAmpFitter():
     plt.figure(facecolor='w',figsize=(10,4))
     
     # plot fitting
-    xarray = np.arange(self.xmin,self.xmax,1)
+    xarray = np.arange(self.xmin,self.xmax,0.5)
     laugau = [self.func(x) for x in xarray]
     plt.axvspan(self.fit_xmim, self.fit_xmax, alpha=0.1, color='C0')
     plt.plot(xarray,laugau,lw=3,color='C0',label='LanGaus Fit')
@@ -64,9 +67,9 @@ class PulseAmpFitter():
     norm = self.param["norm"]/4
     plt.ylim(0,norm)
 
-    xtxt,ytxt,ytxtspace = 0.8*self.xmax, 0.3*norm, 0.1*norm
-    plt.text(xtxt,ytxt+2*ytxtspace,r"$\mu$={:>6.3f}$\pm${:>6.3f}".format(self.param["mu"],self.param["mu_err"]))
-    plt.text(xtxt,ytxt+ytxtspace,r"$c$={:>6.3f}$\pm${:>6.3f}".format(self.param["c"],self.param["c_err"]))
-    plt.text(xtxt,ytxt,r"$\sigma$={:>6.3f}$\pm${:>6.3f}".format(self.param["sigma"],self.param["sigma_err"]))
+    xtxt,ytxt,ytxtspace = 0.7*self.xmax, 0.3*norm, 0.1*norm
+    plt.text(xtxt,ytxt+2*ytxtspace,r"Landau MPV={:>6.3f}$\pm${:>6.3f}".format(self.param["mu"],self.param["mu_err"]))
+    plt.text(xtxt,ytxt+ytxtspace,r"Landau Width={:>6.3f}$\pm${:>6.3f}".format(self.param["c"],self.param["c_err"]))
+    plt.text(xtxt,ytxt,r"Gaussian Width={:>6.3f}$\pm${:>6.3f}".format(self.param["sigma"],self.param["sigma_err"]))
 
   
