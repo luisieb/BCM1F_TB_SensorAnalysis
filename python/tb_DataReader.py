@@ -1,4 +1,3 @@
-
 import pandas as pd
 from pylab import *
 
@@ -15,10 +14,10 @@ class EventFeaturesReader():
   def getChannel(self,channel):
     ch = self.data.query("ch=={}".format(channel))
     
-    if self.backend == "VME":
-      ch = ch.query("pulsePos<{} & pulsePos>{}".format(1415+10,1415-10))
+    if self.backend == "VME": #Added cut on pulseAmp_simaNoise 
+      ch = ch.query(" pulsePos<{} & pulsePos>{} & pulseAmp_sigmaNoise>{}".format(1415+10,1415-10,5))
     if self.backend == "ubcm":
-      ch = ch.query(" pulsePos<{} & pulsePos>{}".format(295+25,295-20))
+      ch = ch.query(" pulsePos<{} & pulsePos>{} & pulseAmp_sigmaNoise>{}".format(295+25,295-20,5))
 
     ch.reset_index(drop=True, inplace=True)
     return ch
