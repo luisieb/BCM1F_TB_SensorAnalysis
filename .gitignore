@@ -1,0 +1,4 @@
+#ignore folder 
+data
+*.ipynb*
+*.pyc
