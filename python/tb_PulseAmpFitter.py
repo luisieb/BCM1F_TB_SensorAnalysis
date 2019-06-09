@@ -23,16 +23,18 @@ class PulseAmpFitter():
     histogram = ROOT.TH1D("hist", "hist", self.mybins.size, self.xmin, self.xmax)
     for i in range(self.centers.size):
       histogram.Fill(self.centers[i],self.h[i])
+    
+    
 
     # for x in np.arange(self.fit_xmim, self.fit_xmax, self.binsize):
     #     i = int((x-self.xmin)/self.binsize)
     #     histogram.Fill(self.centers[i],self.h[i])
-    try:
+    #try:
       # fit root histogram
-      self.func = LanGausFit().fit(histogram, fitrange=(fit_xmim,fit_xmax), startsigma=gaussianSigma)
-      self.getParem()
-    except:
-      print("fitting error")
+    #self.func = LanGausFit().fit(histogram, fitrange=(fit_xmim,fit_xmax), startsigma=gaussianSigma)
+      #self.getParem()
+    #except:
+    #  print("fitting error")
   
   def getParem(self):
     # save parameter
