@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../python')
+import pandas as pd
 import pandas as pd
 from pylab import *
 import seaborn as sns
@@ -13,7 +16,6 @@ sigma = ch.baseline_std.mean()
 
 
 def plotFit():
-
   title = "Run {}, sensor-{} {}V, {} CH{}, n={}".format(run,2, 300,backend,channel,len(ch))
   # fitting
   fitter = PulseAmpFitter(ch.pulseAmp)
