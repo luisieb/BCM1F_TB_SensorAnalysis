@@ -71,7 +71,7 @@ class LanGausFit:
         return startwidth, startmpv, startnorm, startsigma
 
     def _findlevel(self, l, hist):
-        for ii in range(hist.GetNbinsX()):
+        for ii in xrange(hist.GetNbinsX()):
             if hist.GetBinContent(ii + 1) >= l:
                 break
         return hist.GetXaxis().GetBinCenter(ii + 1)
