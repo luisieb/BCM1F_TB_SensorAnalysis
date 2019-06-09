@@ -1,3 +1,6 @@
 data
 *.ipynb*
 *.pyc
+*.so
+*.d
+*.pcm
